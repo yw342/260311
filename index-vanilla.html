@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로또 번호 추천 (바닐라)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --netflix-bg: #141414;
+      --netflix-card: #181818;
+      --netflix-red: #e50914;
+      --netflix-red-hover: #f40612;
+      --text: #ffffff;
+      --text-muted: #808080;
+      --ball-size: 52px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--netflix-bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background-image: 
+        linear-gradient(180deg, transparent 0%, var(--netflix-bg) 30%),
+        radial-gradient(ellipse 100% 80% at 50% 0%, rgba(229, 9, 20, 0.15) 0%, transparent 50%);
+    }
+
+    main {
+      width: 100%;
+      max-width: 440px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 8px;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 36px;
+      font-weight: 500;
+    }
+
+    .card {
+      background: var(--netflix-card);
+      border-radius: 8px;
+      padding: 40px 28px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .balls-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      min-height: calc(var(--ball-size) + 8px);
+      margin-bottom: 20px;
+    }
+
+    .bonus-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+
+    .bonus-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .ball.bonus {
+      border: 3px solid var(--netflix-red);
+      box-shadow: 
+        inset -2px -3px 0 rgba(0, 0, 0, 0.25),
+        0 4px 16px rgba(229, 9, 20, 0.3);
+    }
+
+    .ball {
+      width: var(--ball-size);
+      height: var(--ball-size);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+      box-shadow: 
+        inset -2px -3px 0 rgba(0, 0, 0, 0.2),
+        0 4px 12px rgba(0, 0, 0, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .ball.show {
+      animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes popIn {
+      0% {
+        transform: scale(0);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .ball:hover {
+      transform: scale(1.06);
+      box-shadow: 
+        inset -2px -3px 0 rgba(0, 0, 0, 0.2),
+        0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .ball.clickable {
+      cursor: pointer;
+    }
+
+    .ball[data-range="1"] { background: linear-gradient(145deg, #e6b800, #b8860b); }
+    .ball[data-range="2"] { background: linear-gradient(145deg, #0d9488, #0f766e); }
+    .ball[data-range="3"] { background: linear-gradient(145deg, #7c3aed, #5b21b6); }
+    .ball[data-range="4"] { background: linear-gradient(145deg, #e50914, #b20710); }
+    .ball[data-range="5"] { background: linear-gradient(145deg, #059669, #047857); }
+    .ball[data-range="0"] { background: linear-gradient(145deg, #e6b800, #b8860b); }
+
+    .btn-generate {
+      width: 100%;
+      padding: 14px 24px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--netflix-red);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .btn-generate:hover {
+      background: var(--netflix-red-hover);
+      transform: scale(1.02);
+    }
+
+    .btn-generate:active {
+      transform: scale(0.98);
+    }
+
+    .hint {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 24px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>로또 번호 추천</h1>
+    <p class="subtitle">1~45 중 무작위 6개 + 보너스 번호</p>
+
+    <div class="card">
+      <div class="balls-row" id="ballsRow" aria-live="polite"></div>
+      <div class="bonus-section" id="bonusSection" aria-live="polite">
+        <span class="bonus-label">보너스</span>
+        <div class="ball bonus show" id="bonusBall"></div>
+      </div>
+      <button type="button" class="btn-generate" id="btnGenerate">번호 뽑기</button>
+    </div>
+
+    <p class="hint">버튼을 누를 때마다 새로운 번호가 추천됩니다. 참고용으로만 사용하세요.</p>
+  </main>
+
+  <script>
+    const MIN = 1;
+    const MAX = 45;
+    const COUNT = 6;
+    function getRange(num) {
+      if (num <= 10) return 1;
+      if (num <= 20) return 2;
+      if (num <= 30) return 3;
+      if (num <= 40) return 4;
+      return 5;
+    }
+    function pickNumbers() {
+      const set = new Set();
+      while (set.size < COUNT) set.add(MIN + Math.floor(Math.random() * (MAX - MIN + 1)));
+      return Array.from(set).sort((a, b) => a - b);
+    }
+    function pickBonus(excludeNumbers) {
+      const excluded = new Set(excludeNumbers);
+      const available = [];
+      for (let n = MIN; n <= MAX; n++) { if (!excluded.has(n)) available.push(n); }
+      return available[Math.floor(Math.random() * available.length)];
+    }
+    function pickOneExcluding(excludeSet) {
+      const available = [];
+      for (let n = MIN; n <= MAX; n++) { if (!excludeSet.has(n)) available.push(n); }
+      return available[Math.floor(Math.random() * available.length)];
+    }
+    let state = { numbers: [], bonus: 0 };
+    function renderBalls(numbers, bonus) {
+      state.numbers = [...numbers];
+      state.bonus = bonus;
+      const row = document.getElementById('ballsRow');
+      row.innerHTML = '';
+      numbers.forEach((num, i) => {
+        const ball = document.createElement('div');
+        ball.className = 'ball show clickable';
+        ball.setAttribute('data-range', getRange(num));
+        ball.setAttribute('title', '클릭하면 이 번호만 다시 뽑기');
+        ball.textContent = num;
+        ball.style.animationDelay = i * 0.06 + 's';
+        ball.addEventListener('click', () => {
+          const others = new Set(numbers.filter((_, j) => j !== i));
+          others.add(num);
+          const newNum = pickOneExcluding(others);
+          const next = [...state.numbers];
+          next[i] = newNum;
+          next.sort((a, b) => a - b);
+          renderBalls(next, state.bonus);
+        });
+        row.appendChild(ball);
+      });
+      const bonusEl = document.getElementById('bonusBall');
+      bonusEl.textContent = bonus;
+      bonusEl.setAttribute('data-range', getRange(bonus));
+      bonusEl.setAttribute('title', '클릭하면 보너스 번호만 다시 뽑기');
+      bonusEl.className = 'ball bonus show clickable';
+      bonusEl.style.animationDelay = '0.36s';
+      bonusEl.onclick = () => { renderBalls(state.numbers, pickBonus(state.numbers)); };
+    }
+    document.getElementById('btnGenerate').addEventListener('click', () => {
+      const numbers = pickNumbers();
+      renderBalls(numbers, pickBonus(numbers));
+    });
+    (function init() {
+      const numbers = pickNumbers();
+      renderBalls(numbers, pickBonus(numbers));
+    })();
+  </script>
+</body>
+</html>
