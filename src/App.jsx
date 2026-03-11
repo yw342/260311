@@ -452,6 +452,7 @@ function App() {
       const next = [...prev.numbers]
       next[index] = newNum
       next.sort((a, b) => a - b)
+      setHistory((h) => [{ numbers: next, bonus: prev.bonus }, ...h].slice(0, HISTORY_MAX))
       return { ...prev, numbers: next }
     })
   }, [firstBallClickCount])
@@ -463,7 +464,11 @@ function App() {
       setBonusClickCount(0)
       setShowBlackjack(true)
     }
-    setState((prev) => ({ ...prev, bonus: pickBonus(prev.numbers) }))
+    setState((prev) => {
+      const newBonus = pickBonus(prev.numbers)
+      setHistory((h) => [{ numbers: prev.numbers, bonus: newBonus }, ...h].slice(0, HISTORY_MAX))
+      return { ...prev, bonus: newBonus }
+    })
   }, [bonusClickCount])
 
   const shareText = `${numbers.join(', ')} + 보너스 ${bonus}\n로또 번호 추천`
@@ -599,7 +604,7 @@ function App() {
       {history.length > 0 && (
         <section className="history-section" aria-label="번호 추천 이력">
           <h2 className="history-title">번호 추천 이력</h2>
-          <p className="history-desc">번호 뽑기로 추천받은 번호 (최신순, 최대 {HISTORY_MAX}개)</p>
+          <p className="history-desc">번호 뽑기·공 클릭으로 바뀐 번호 포함 (최신순, 최대 {HISTORY_MAX}개)</p>
           <ul className="history-list">
             {history.map((item, idx) => (
               <li key={idx} className="history-item">
