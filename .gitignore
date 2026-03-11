@@ -1,5 +1,9 @@
 node_modules/
 dist/
+fix-rebase-*.ps1
+msg-filter.cjs
+msg-filter.ps1
+run-msg-filter.cmd
 *.local
 .DS_Store
 .env

@@ -333,6 +333,7 @@ function MiniBlackjack({ onClose }) {
 const MIN = 1
 const MAX = 45
 const COUNT = 6
+const HISTORY_MAX = 20
 
 function getRange(num) {
   if (num <= 10) return 1
@@ -416,6 +417,7 @@ function BallStatic({ num, isBonus = false }) {
 
 function App() {
   const [{ numbers, bonus }, setState] = useState(getInitialState)
+  const [history, setHistory] = useState([])
   const [bonusClickCount, setBonusClickCount] = useState(0)
   const [firstBallClickCount, setFirstBallClickCount] = useState(0)
   const [showBlackjack, setShowBlackjack] = useState(false)
@@ -425,7 +427,9 @@ function App() {
     setBonusClickCount(0)
     setFirstBallClickCount(0)
     const newNumbers = pickNumbers()
-    setState({ numbers: newNumbers, bonus: pickBonus(newNumbers) })
+    const newBonus = pickBonus(newNumbers)
+    setState({ numbers: newNumbers, bonus: newBonus })
+    setHistory((h) => [{ numbers: newNumbers, bonus: newBonus }, ...h].slice(0, HISTORY_MAX))
   }, [])
 
   const replaceNumber = useCallback((index) => {
@@ -591,6 +595,27 @@ function App() {
       <p className="hint">
         버튼을 누를 때마다 새로운 번호가 추천됩니다. 공을 클릭하면 해당 번호만 바꿀 수 있습니다. 참고용으로만 사용하세요.
       </p>
+
+      {history.length > 0 && (
+        <section className="history-section" aria-label="번호 추천 이력">
+          <h2 className="history-title">번호 추천 이력</h2>
+          <p className="history-desc">번호 뽑기로 추천받은 번호 (최신순, 최대 {HISTORY_MAX}개)</p>
+          <ul className="history-list">
+            {history.map((item, idx) => (
+              <li key={idx} className="history-item">
+                <span className="history-index">{idx + 1}</span>
+                <div className="history-balls">
+                  {item.numbers.map((num) => (
+                    <BallStatic key={`${idx}-${num}`} num={num} />
+                  ))}
+                  <span className="history-plus">+</span>
+                  <BallStatic num={item.bonus} isBonus />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="winners-section" aria-label="2026년 로또 1등 당첨번호">
         <h2 className="winners-title">2026년 로또 1등 당첨번호</h2>
