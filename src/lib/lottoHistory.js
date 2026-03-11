@@ -19,3 +19,24 @@ export async function saveLottoHistory(numbers, bonus) {
     console.error('Failed to save lotto history:', e)
   }
 }
+
+/**
+ * Supabase에서 최근 추첨 이력 조회 (최신순)
+ * @param {number} limit - 최대 개수
+ * @returns {Promise<Array<{ id: string, numbers: number[], bonus: number, created_at: string }>>}
+ */
+export async function fetchLottoHistory(limit = 20) {
+  if (!supabase) return []
+  try {
+    const { data, error } = await supabase
+      .from(TABLE)
+      .select('id, numbers, bonus, created_at')
+      .order('created_at', { ascending: false })
+      .limit(limit)
+    if (error) throw error
+    return data ?? []
+  } catch (e) {
+    console.error('Failed to fetch lotto history:', e)
+    return []
+  }
+}

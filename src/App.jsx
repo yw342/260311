@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import './App.css'
-import { saveLottoHistory } from './lib/lottoHistory'
+import { saveLottoHistory, fetchLottoHistory } from './lib/lottoHistory'
 
 const SUITS = ['♠', '♥', '♦', '♣']
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
@@ -424,6 +424,12 @@ function App() {
   const [showBlackjack, setShowBlackjack] = useState(false)
   const [showDoom, setShowDoom] = useState(false)
 
+  useEffect(() => {
+    fetchLottoHistory(HISTORY_MAX).then((data) => {
+      if (data?.length) setHistory(data)
+    })
+  }, [])
+
   const regenerateAll = useCallback(() => {
     setBonusClickCount(0)
     setFirstBallClickCount(0)
@@ -611,7 +617,7 @@ function App() {
           <p className="history-desc">번호 뽑기·공 클릭으로 바뀐 번호 포함 (최신순, 최대 {HISTORY_MAX}개)</p>
           <ul className="history-list">
             {history.map((item, idx) => (
-              <li key={idx} className="history-item">
+              <li key={item.id ?? `local-${idx}`} className="history-item">
                 <span className="history-index">{idx + 1}</span>
                 <div className="history-balls">
                   {item.numbers.map((num) => (
