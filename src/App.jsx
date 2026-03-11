@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import './App.css'
+import { saveLottoHistory } from './lib/lottoHistory'
 
 const SUITS = ['♠', '♥', '♦', '♣']
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
@@ -430,6 +431,7 @@ function App() {
     const newBonus = pickBonus(newNumbers)
     setState({ numbers: newNumbers, bonus: newBonus })
     setHistory((h) => [{ numbers: newNumbers, bonus: newBonus }, ...h].slice(0, HISTORY_MAX))
+    saveLottoHistory(newNumbers, newBonus)
   }, [])
 
   const replaceNumber = useCallback((index) => {
@@ -453,6 +455,7 @@ function App() {
       next[index] = newNum
       next.sort((a, b) => a - b)
       setHistory((h) => [{ numbers: next, bonus: prev.bonus }, ...h].slice(0, HISTORY_MAX))
+      saveLottoHistory(next, prev.bonus)
       return { ...prev, numbers: next }
     })
   }, [firstBallClickCount])
@@ -467,6 +470,7 @@ function App() {
     setState((prev) => {
       const newBonus = pickBonus(prev.numbers)
       setHistory((h) => [{ numbers: prev.numbers, bonus: newBonus }, ...h].slice(0, HISTORY_MAX))
+      saveLottoHistory(prev.numbers, newBonus)
       return { ...prev, bonus: newBonus }
     })
   }, [bonusClickCount])
